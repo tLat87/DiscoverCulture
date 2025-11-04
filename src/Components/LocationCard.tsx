@@ -42,7 +42,6 @@ const LocationCard: React.FC<LocationCardProps> = ({
       const shareOptions = {
         title: location.name,
         message: `Check out this amazing place: ${location.name}\n\n${location.description}\n\nCoordinates: ${location.coordinates.latitude}, ${location.coordinates.longitude}`,
-        url: `https://maps.google.com/?q=${location.coordinates.latitude},${location.coordinates.longitude}`,
       };
       
       await Share.open(shareOptions);
@@ -86,14 +85,7 @@ const LocationCard: React.FC<LocationCardProps> = ({
           {/* Кнопки */}
           <View style={styles.buttonsContainer}>
             {/* Explore Button */}
-            <TouchableOpacity
-              style={styles.exploreButton}
-              onPress={onExplore}
-              activeOpacity={0.8}>
-              <View style={styles.exploreButtonGradient}>
-                <Text style={styles.exploreButtonText}>Explore</Text>
-              </View>
-            </TouchableOpacity>
+           
 
             {/* Share Button */}
             <TouchableOpacity

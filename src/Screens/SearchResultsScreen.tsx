@@ -40,7 +40,6 @@ const SearchResultsScreen: React.FC<SearchResultsScreenProps> = ({
       const shareOptions = {
         title: locationData.name,
         message: `Check out this amazing place: ${locationData.name}\n\n${locationData.description}\n\nCoordinates: ${locationData.coordinates.latitude}, ${locationData.coordinates.longitude}`,
-        url: `https://maps.google.com/?q=${locationData.coordinates.latitude},${locationData.coordinates.longitude}`,
       };
       
       await Share.open(shareOptions);

@@ -8,7 +8,6 @@ import {
   StatusBar,
   Image,
 } from 'react-native';
-import * as Animatable from 'react-native-animatable';
 import BackgroundImage from '../Components/BackgroundImage';
 
 const {width, height} = Dimensions.get('window');
@@ -19,6 +18,7 @@ interface OnboardingScreenProps {
 
 const OnboardingScreen: React.FC<OnboardingScreenProps> = ({onComplete}) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const isCompletingRef = useRef(false);
 
   const steps = [
     {
@@ -42,14 +42,31 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({onComplete}) => {
   ];
 
   const handleNext = () => {
+    if (isCompletingRef.current) {
+      return;
+    }
+    
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      onComplete();
+      handleComplete();
     }
   };
 
   const handleSkip = () => {
+    if (isCompletingRef.current) {
+      return;
+    }
+    handleComplete();
+  };
+
+  const handleComplete = () => {
+    if (isCompletingRef.current) {
+      return;
+    }
+    
+    isCompletingRef.current = true;
+    // Просто вызываем колбэк - навигация будет обработана в App.tsx
     onComplete();
   };
 
@@ -59,10 +76,7 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({onComplete}) => {
         <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
       {/* Верхняя половина экрана - mainImg */}
-      <Animatable.View
-        style={styles.topHalf}
-        animation="fadeIn"
-        duration={1000}>
+      <View style={styles.topHalf}>
         <Image
           source={steps[currentStep].mainImg}
           style={styles.mainImage}
@@ -79,20 +93,16 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({onComplete}) => {
               />
             ))}
           </View>
-      </Animatable.View>
+      </View>
 
       <TouchableOpacity style={styles.bottomHalf} onPress={handleNext} activeOpacity={1}>
-        <Animatable.View
-          style={styles.bottomImageContainer}
-          animation="fadeInUp"
-          delay={300}
-          duration={1000}>
+        <View style={styles.bottomImageContainer}>
           <Image
             source={steps[currentStep].bottomImg}
             style={styles.bottomImage}
             resizeMode="contain"
           />
-        </Animatable.View>
+        </View>
 
         {/* Контент */}
     

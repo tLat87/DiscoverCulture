@@ -257,7 +257,11 @@ const App: React.FC = () => {
   };
 
   const handleOnboardingComplete = () => {
-    setHasCompletedOnboarding(true);
+    // Используем setTimeout для безопасного обновления состояния на Android
+    // Задержка позволяет завершить текущий рендер перед переходом
+    setTimeout(() => {
+      setHasCompletedOnboarding(true);
+    }, 200);
   };
 
   const handlePetalPress = (category: string) => {
@@ -300,14 +304,17 @@ const App: React.FC = () => {
     return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
   }
 
+  // Показываем OnboardingScreen до завершения onboarding
   if (!hasCompletedOnboarding) {
     return <OnboardingScreen onComplete={handleOnboardingComplete} />;
   }
 
+  // После завершения onboarding показываем навигацию
   return (
     <NavigationContainer>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <Stack.Navigator
+        initialRouteName="MainTabs"
         screenOptions={{
           headerShown: false,
           cardStyle: {backgroundColor: 'transparent'},

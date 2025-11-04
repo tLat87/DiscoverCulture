@@ -34,7 +34,6 @@ interface LocationScreenProps {
   location: LocationData;
   onBack: () => void;
   onAddToFavorites: (locationId: string) => void;
-  onViewOnMap: () => void;
   isFavorite: boolean;
 }
 
@@ -42,7 +41,6 @@ const LocationScreen: React.FC<LocationScreenProps> = ({
   location,
   onBack,
   onAddToFavorites,
-  onViewOnMap,
   isFavorite,
 }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -165,15 +163,6 @@ const LocationScreen: React.FC<LocationScreenProps> = ({
         </Animatable.View>
       </ScrollView>
 
-      {/* Нижние кнопки */}
-      <View style={styles.bottomButtons}>
-        <TouchableOpacity
-          style={styles.mapButton}
-          onPress={onViewOnMap}
-          activeOpacity={0.7}>
-          <Text style={styles.mapButtonText}>🗺️ View on Map</Text>
-        </TouchableOpacity>
-      </View>
     </View>
   );
 };
@@ -323,23 +312,6 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 16,
     color: '#333',
-  },
-  bottomButtons: {
-    padding: 20,
-    backgroundColor: '#F5F5DC',
-    borderTopWidth: 1,
-    borderTopColor: '#E8E8E8',
-  },
-  mapButton: {
-    backgroundColor: '#2E8B57',
-    paddingVertical: 15,
-    borderRadius: 25,
-    alignItems: 'center',
-  },
-  mapButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#F5F5DC',
   },
 });
 

@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,9 @@ import {
   StatusBar,
   ScrollView,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
-import * as Animatable from 'react-native-animatable';
 import BackgroundImage from '../Components/BackgroundImage';
 import {sampleLocations, categories} from '../Data/locations';
+import LocationCard from '../Components/LocationCard';
 
 const {width, height} = Dimensions.get('window');
 
@@ -22,16 +21,10 @@ interface MapScreenProps {
 
 const MapScreen: React.FC<MapScreenProps> = ({onBack, onLocationPress}) => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [mapError, setMapError] = useState(false);
-  const mapRef = useRef<MapView>(null);
 
   const filteredLocations = selectedCategory
     ? sampleLocations.filter(location => location.category === selectedCategory)
     : sampleLocations;
-
-  const handleMarkerPress = (location: any) => {
-    onLocationPress(location);
-  };
 
   return (
     <BackgroundImage>
@@ -47,74 +40,32 @@ const MapScreen: React.FC<MapScreenProps> = ({onBack, onLocationPress}) => {
             <Text style={styles.backButtonText}>← Back</Text>
           </TouchableOpacity>
           
-          <Text style={styles.title}>Thai Locations Map</Text>
+          <Text style={styles.title}>Thai Locations</Text>
           
           <View style={styles.placeholder} />
         </View>
 
-        {/* Карта */}
-        <View style={styles.mapContainer}>
-          {!mapError ? (
-            <MapView
-              ref={mapRef}
-              style={styles.map}
-              initialRegion={{
-                latitude: 51.5074,
-                longitude: -0.1278,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }}
-              showsUserLocation={true}
-              showsMyLocationButton={true}
-              onError={() => setMapError(true)}>
-              
-              {/* Маркеры локаций */}
-              {filteredLocations.map((location) => (
-                <Marker
-                  key={location.id}
-                  coordinate={{
-                    latitude: location.coordinates.latitude,
-                    longitude: location.coordinates.longitude,
-                  }}
-                  title={location.name}
-                  description={location.description}
-                  onPress={() => handleMarkerPress(location)}>
-                  <View style={[styles.customMarker, {backgroundColor: '#FF6B6B'}]}>
-                    <Text style={styles.markerText}>📍</Text>
-                  </View>
-                </Marker>
-              ))}
-            </MapView>
-          ) : (
-            <View style={styles.mapFallback}>
-              <Text style={styles.fallbackTitle}>🗺️ Map Loading...</Text>
-              <Text style={styles.fallbackText}>
-                {filteredLocations.length} locations found
-              </Text>
-              <Text style={styles.fallbackSubtext}>
-                Tap locations below to view details
-              </Text>
-              
-              {/* Список локаций как заглушка */}
-              <ScrollView style={styles.fallbackList}>
-                {filteredLocations.map((location) => (
-                  <TouchableOpacity
-                    key={location.id}
-                    style={styles.fallbackItem}
-                    onPress={() => handleMarkerPress(location)}>
-                    <Text style={styles.fallbackItemIcon}>📍</Text>
-                    <View style={styles.fallbackItemContent}>
-                      <Text style={styles.fallbackItemName}>{location.name}</Text>
-                      <Text style={styles.fallbackItemDescription}>
-                        {location.coordinates.latitude}, {location.coordinates.longitude}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
+        {/* Список локаций */}
+        <ScrollView 
+          style={styles.locationsList}
+          contentContainerStyle={styles.locationsListContent}
+          showsVerticalScrollIndicator={false}>
+          {filteredLocations.map((location) => (
+            <LocationCard
+              key={location.id}
+              location={location}
+              onExplore={() => onLocationPress(location)}
+              onShare={() => {}}
+              onHeart={() => {}}
+              isFavorite={false}
+            />
+          ))}
+          {filteredLocations.length === 0 && (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No locations found</Text>
             </View>
           )}
-        </View>
+        </ScrollView>
 
         {/* Фильтры категорий */}
         <View style={styles.filtersContainer}>
@@ -160,7 +111,7 @@ const MapScreen: React.FC<MapScreenProps> = ({onBack, onLocationPress}) => {
             {filteredLocations.length} locations found
           </Text>
           <Text style={styles.infoSubtitle}>
-            Tap markers to view details
+            Tap locations to view details
           </Text>
         </View>
       </View>
@@ -198,104 +149,23 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 60,
   },
-  mapContainer: {
-    flex: 1,
-    margin: 20,
-    borderRadius: 20,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  map: {
+  locationsList: {
     flex: 1,
   },
-  customMarker: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: '#FFF',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  markerText: {
-    fontSize: 20,
-  },
-  mapFallback: {
-    flex: 1,
-    backgroundColor: '#E8F5E8',
-    justifyContent: 'center',
-    alignItems: 'center',
+  locationsListContent: {
     padding: 20,
+    paddingBottom: 100,
   },
-  fallbackTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2E8B57',
-    marginBottom: 10,
-  },
-  fallbackText: {
-    fontSize: 18,
-    color: '#2E8B57',
-    marginBottom: 5,
-  },
-  fallbackSubtext: {
-    fontSize: 14,
-    color: '#2E8B57',
-    opacity: 0.7,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  fallbackList: {
+  emptyContainer: {
     flex: 1,
-    width: '100%',
-  },
-  fallbackItem: {
-    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFF',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    paddingVertical: 50,
   },
-  fallbackItemIcon: {
-    fontSize: 24,
-    marginRight: 15,
-  },
-  fallbackItemContent: {
-    flex: 1,
-  },
-  fallbackItemName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2E8B57',
-    marginBottom: 5,
-  },
-  fallbackItemDescription: {
-    fontSize: 12,
-    color: '#666',
+  emptyText: {
+    fontSize: 18,
+    color: '#F5F5DC',
+    opacity: 0.7,
   },
   filtersContainer: {
     paddingBottom: 20,
